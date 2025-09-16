@@ -1,5 +1,3 @@
-const readline = require("node:readline");
-
 class Character {
   #strength;
   #speed;
@@ -31,18 +29,17 @@ class Character {
   }
 
   attack(target) {
-    throw new Error("Method attack() must be overridden in subclasses");
+    throw new Error("Method attack() must be overridden");
   }
 
   defense(damage) {
-    const reducedDamage = Math.max(0, damage - this.#def);
-    this.#health -= reducedDamage;
-    return reducedDamage;
+    const reduced = Math.max(0, damage - this.#def);
+    this.#health -= reduced;
+    return reduced;
   }
 
   recovery() {
     this.#health += 10;
-    console.log(`Character recovered, now has ${this.#health} HP.`);
   }
 
   miss() {
@@ -68,47 +65,44 @@ class Hero extends Character {
 
   attack(target) {
     if (this.#mana < 25) {
-      console.log("Not enough mana!");
+      addLog("Not enough mana!");
       return false;
     }
 
-    this.#mana -= 25;
+    this.#mana -= 10;
+
     if (this.miss()) {
-      console.log("Hero missed!");
+      addLog("Hero missed!");
       return false;
     }
-    this.#mana += 35;
+
     let damage = this.strength;
     if (Math.random() * 100 >= 90) damage *= 1.5;
 
     target.defense(damage);
-    console.log(
-      `Hero attacks and deals ${damage} damage! (Mana: ${this.#mana})`
-    );
+    addLog(`Hero attacks and deals ${damage} damage! (Mana: ${this.#mana})`);
     return true;
   }
 
   defense(damage) {
     const reduced = super.defense(damage);
-    console.log(`Hero takes ${reduced} damage after defense.`);
+    addLog(`Hero takes ${reduced} damage after defense.`);
   }
 
   recovery() {
     this.health = Math.min(this.health * 1.2, 120);
     this.#mana = Math.min(this.#mana + 20, 100);
-    console.log(
-      `Hero recovered, now has ${this.health} HP and ${this.#mana} MP.`
-    );
+    addLog(`Hero recovered, HP: ${this.health}, MP: ${this.#mana}`);
   }
 
   useMiss() {
     if (this.#mana < 20) {
-      console.log("Not enough mana to dodge!");
+      addLog("Not enough mana to dodge!");
       return false;
     }
-    this.#mana -= 20;
+    this.#mana -= 10;
     this._dodging = true;
-    console.log(`Hero prepares to dodge! (Mana: ${this.#mana})`);
+    addLog(`Hero prepares to dodge! (Mana: ${this.#mana})`);
     return true;
   }
 
@@ -118,19 +112,19 @@ class Hero extends Character {
 }
 
 class Enemy extends Character {
-  constructor(strength = 75, speed = 30, health = 200, def = 30) {
+  constructor(strength = 75, speed = 30, health = 600, def = 30) {
     super(strength, speed, health, def);
   }
 
   attack(target) {
     if (target._dodging) {
-      console.log("Enemy attacks, but hero dodges!");
+      addLog("Enemy attacks, but hero dodges!");
       target._dodging = false;
       return false;
     }
 
     if (this.miss()) {
-      console.log("Enemy missed!");
+      addLog("Enemy missed!");
       return false;
     }
 
@@ -138,18 +132,18 @@ class Enemy extends Character {
     if (Math.random() * 100 >= 90) damage *= 1.5;
 
     target.defense(damage);
-    console.log(`Enemy attacks and deals ${damage} damage!`);
+    addLog(`Enemy attacks and deals ${damage} damage!`);
     return true;
   }
 
   defense(damage) {
     const reduced = super.defense(damage);
-    console.log(`Enemy takes ${reduced} damage after defense.`);
+    addLog(`Enemy takes ${reduced} damage after defense.`);
   }
 
   recovery() {
     this.health = Math.min(this.health * 1.2, 100);
-    console.log(`Enemy recovered, now has ${this.health} HP.`);
+    addLog(`Enemy recovered, now has ${this.health} HP.`);
   }
 
   miss() {
@@ -158,47 +152,84 @@ class Enemy extends Character {
 
   random(target) {
     const action = Math.floor(Math.random() * 3) + 1;
-
     if (action === 1) this.attack(target);
     else if (action === 2) this.recovery();
-    else console.log("Enemy does nothing.");
+    else addLog("Enemy does nothing.");
   }
 }
 
 const hero = new Hero();
 const enemy = new Enemy();
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const heroHP = document.getElementById("hero-hp");
+const heroMP = document.getElementById("hero-mp");
+const enemyHP = document.getElementById("enemy-hp");
+const log = document.getElementById("log");
 
-function gameLoop() {
-  if (hero.health <= 0) {
-    console.log("Enemy wins!");
-    process.exit();
-  }
-  if (enemy.health <= 0) {
-    console.log("Hero wins!");
-    process.exit();
-  }
+const attackBtn = document.getElementById("Attack");
+const defenseBtn = document.getElementById("Defense");
+const recoveryBtn = document.getElementById("Recovery");
+const missBtn = document.getElementById("Miss");
 
-  console.log(`\nHero: HP ${hero.health}, MP ${hero.mana}`);
-  console.log(`Enemy: HP ${enemy.health}`);
-
-  rl.question(
-    "Choose action (A - Attack, B - Defend, C - Recover, D - Dodge): ",
-    (command) => {
-      if (command === "A") hero.attack(enemy);
-      else if (command === "B") hero.defense(10);
-      else if (command === "C") hero.recovery();
-      else if (command === "D") hero.useMiss();
-
-      enemy.random(hero);
-
-      gameLoop();
-    }
-  );
+function updateStatus() {
+  heroHP.textContent = `HP: ${hero.health}`;
+  heroMP.textContent = `MP: ${hero.mana}`;
+  enemyHP.textContent = `HP: ${enemy.health}`;
 }
 
-gameLoop();
+function addLog(message) {
+  const p = document.createElement("p");
+  p.textContent = message;
+  log.appendChild(p);
+  log.scrollTop = log.scrollHeight;
+}
+
+function disableButtons() {
+  attackBtn.disabled = true;
+  defenseBtn.disabled = true;
+  recoveryBtn.disabled = true;
+  missBtn.disabled = true;
+}
+
+function checkGameOver() {
+  if (hero.health <= 0) {
+    addLog("Enemy wins!");
+    disableButtons();
+  }
+  if (enemy.health <= 0) {
+    addLog("Hero wins!");
+    disableButtons();
+  }
+}
+
+function enemyTurn() {
+  enemy.random(hero);
+  updateStatus();
+  checkGameOver();
+}
+
+attackBtn.addEventListener("click", () => {
+  hero.attack(enemy);
+  updateStatus();
+  enemyTurn();
+});
+
+defenseBtn.addEventListener("click", () => {
+  hero.defense(10);
+  updateStatus();
+  enemyTurn();
+});
+
+recoveryBtn.addEventListener("click", () => {
+  hero.recovery();
+  updateStatus();
+  enemyTurn();
+});
+
+missBtn.addEventListener("click", () => {
+  hero.useMiss();
+  updateStatus();
+  enemyTurn();
+});
+
+updateStatus();
