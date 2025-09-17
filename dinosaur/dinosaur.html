@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="assets/styles.css">
-</head>
-<body>
-    <div class="game-container generate">
-        <div class="map">
-            <div id="dinosaur">
-                <img src="https://e7.pngegg.com/pngimages/1003/946/png-clipart-dino-t-rex-runner-tyrannosaurus-dino-chrome-dinosaur-game-angle.png" alt="">
-            </div>
-            <div id="cactus">
-                <img src="" alt="">
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dino Game</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <div class="game-container">
+      <div class="map">
+        <div id="dinosaur">
+          <img
+            src=""
+            alt="dino"
+          />
         </div>
-        <button id="timer">Timer</button>
-        <h3 id="tame"></h3>
+        <div id="cactus">
+          <img
+            src=""
+            alt="cactus"
+          />
+        </div>
+      </div>
+
+      <h3 id="time">Time: 0</h3>
+
+      <div id="hidden" class="modal">
+        <h2>Game Over</h2>
+        <button id="new-game">Restart</button>
+      </div>
     </div>
+
     <script src="dinosaur.js"></script>
-</body>
+  </body>
 </html>
