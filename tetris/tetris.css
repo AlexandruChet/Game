@@ -1,0 +1,68 @@
+body {
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  align-items: center;
+}
+
+#map {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(11, 20px);
+  grid-template-rows: repeat(22, 20px);
+}
+
+.figure {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, 20px);
+  grid-template-rows: repeat(2, 20px);
+  transition: transform 0.1s linear;
+}
+
+.block {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #222;
+  box-sizing: border-box;
+}
+
+.block.red {
+  background: linear-gradient(135deg, #ff4d4d, #cc0000);
+}
+.block.blue {
+  background: linear-gradient(135deg, #4d88ff, #0033cc);
+}
+.block.green {
+  background: linear-gradient(135deg, #4dff4d, #00cc00);
+}
+.block.yellow {
+  background: linear-gradient(135deg, #ffff66, #cccc00);
+}
+.block.orange {
+  background: linear-gradient(135deg, #ff9933, #cc6600);
+}
+.block.purple {
+  background: linear-gradient(135deg, #cc66ff, #6600cc);
+}
+.block.cyan {
+  background: linear-gradient(135deg, #33ffff, #0099cc);
+}
+
+@keyframes line-clear {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+.line-cleared {
+  animation: line-clear 0.5s ease forwards;
+}
