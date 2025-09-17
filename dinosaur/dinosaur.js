@@ -4,87 +4,103 @@ const modal = document.getElementById("hidden");
 const restartBtn = document.getElementById("new-game");
 const timeText = document.getElementById("time");
 
+const GAME_SETTINGS = {
+  cactusSpeed: 5,
+  cactusStart: -60,
+  cactusEnd: 860,
+  jumpDuration: 600,
+  timerInterval: 1000,
+};
+
 let isAlive = true;
 let time = 0;
-let timerInterval;
+let timerId;
+let cactusAnimationId;
 
-function moveCactus() {
-  cactus.style.right = "-60px";
-  let cactusPosition = -60;
+function startGame() {
+  resetGame();
+  animateCactus();
+  startTimer();
+  setupControls();
+}
 
-  const move = setInterval(() => {
-    if (!isAlive) {
-      clearInterval(move);
-      return;
-    }
-
-    cactusPosition += 5;
-    cactus.style.right = cactusPosition + "px";
-
-    if (cactusPosition > 860) {
-      cactusPosition = -60;
-    }
-
-    if (checkCollision(dino, cactus)) {
-      gameOver();
-      clearInterval(move);
-    }
-  }, 30);
+function resetGame() {
+  isAlive = true;
+  time = 0;
+  timeText.textContent = "Time: 0";
+  cactus.style.right = GAME_SETTINGS.cactusStart + "px";
 }
 
 function startTimer() {
-  timerInterval = setInterval(() => {
+  timerId = setInterval(() => {
     if (isAlive) {
       time++;
-      timeText.textContent = "Time: " + time;
+      timeText.textContent = `Time: ${time}`;
     }
-  }, 1000);
+  }, GAME_SETTINGS.timerInterval);
 }
 
-function checkCollision(el1, el2) {
-  const rect1 = el1.getBoundingClientRect();
-  const rect2 = el2.getBoundingClientRect();
+function animateCactus() {
+  let position = GAME_SETTINGS.cactusStart;
 
-  return (
-    rect1.left < rect2.right &&
-    rect1.right > rect2.left &&
-    rect1.top < rect2.bottom &&
-    rect1.bottom > rect2.top
-  );
+  function step() {
+    if (!isAlive) return;
+
+    position += GAME_SETTINGS.cactusSpeed;
+    if (position > GAME_SETTINGS.cactusEnd) {
+      position = GAME_SETTINGS.cactusStart;
+    }
+
+    cactus.style.right = position + "px";
+
+    if (checkCollision(dino, cactus)) {
+      gameOver();
+      return;
+    }
+
+    cactusAnimationId = requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
 }
 
 function jump() {
-  if (!dino.classList.contains("jump")) {
-    dino.classList.add("jump");
-    setTimeout(() => {
-      dino.classList.remove("jump");
-    }, 600);
-  }
+  if (dino.classList.contains("jump") || !isAlive) return;
+
+  dino.classList.add("jump");
+  setTimeout(() => dino.classList.remove("jump"), GAME_SETTINGS.jumpDuration);
 }
 
-document.addEventListener("keydown", (event) => {
-  if (event.code === "Space" || event.code === "ArrowUp") {
-    jump();
-  }
-});
+function checkCollision(el1, el2) {
+  const r1 = el1.getBoundingClientRect();
+  const r2 = el2.getBoundingClientRect();
+
+  return (
+    r1.left < r2.right &&
+    r1.right > r2.left &&
+    r1.top < r2.bottom &&
+    r1.bottom > r2.top
+  );
+}
 
 function gameOver() {
   isAlive = false;
   modal.classList.add("active");
-  clearInterval(timerInterval);
+  clearInterval(timerId);
+  cancelAnimationFrame(cactusAnimationId);
 }
 
-restartBtn.addEventListener("click", () => {
-  modal.classList.remove("active");
-  isAlive = true;
-  time = 0;
-  timeText.textContent = "Time: 0";
-  startGame();
-});
+function setupControls() {
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" || e.code === "ArrowUp") {
+      jump();
+    }
+  });
 
-function startGame() {
-  moveCactus();
-  startTimer();
+  restartBtn.addEventListener("click", () => {
+    modal.classList.remove("active");
+    startGame();
+  });
 }
 
 startGame();
