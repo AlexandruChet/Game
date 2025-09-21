@@ -50,11 +50,7 @@ const getRandomCards = (e) => {
 
   for (const suit in Deck) {
     for (const rank in Deck[suit]) {
-      allCards.push({
-        suit,
-        rank,
-        value: Deck[suit][rank],
-      });
+      allCards.push({ suit, rank, value: Deck[suit][rank] });
     }
   }
 
@@ -69,4 +65,20 @@ const getRandomCards = (e) => {
   return selected;
 };
 
-console.log(getRandomCards(7));
+class Hero {
+  random() {
+    console.log("Hero cards:", getRandomCards(7));
+  }
+}
+
+class Enemy {
+  random() {
+    console.log("Enemy cards:", getRandomCards(7));
+  }
+}
+
+const hero = new Hero();
+const enemy = new Enemy();
+
+hero.random();
+enemy.random();
