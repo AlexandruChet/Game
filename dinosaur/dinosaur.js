@@ -17,33 +17,33 @@ let time = 0;
 let timerId;
 let cactusAnimationId;
 
-function startGame() {
+const startGame = () => {
   resetGame();
   animateCactus();
   startTimer();
   setupControls();
-}
+};
 
-function resetGame() {
+const resetGame = () => {
   isAlive = true;
   time = 0;
   timeText.textContent = "Time: 0";
   cactus.style.right = GAME_SETTINGS.cactusStart + "px";
-}
+};
 
-function startTimer() {
+const startTimer = () => {
   timerId = setInterval(() => {
     if (isAlive) {
       time++;
       timeText.textContent = `Time: ${time}`;
     }
   }, GAME_SETTINGS.timerInterval);
-}
+};
 
-function animateCactus() {
+const animateCactus = () => {
   let position = GAME_SETTINGS.cactusStart;
 
-  function step() {
+  const step = () => {
     if (!isAlive) return;
 
     position += GAME_SETTINGS.cactusSpeed;
@@ -59,19 +59,19 @@ function animateCactus() {
     }
 
     cactusAnimationId = requestAnimationFrame(step);
-  }
+  };
 
   requestAnimationFrame(step);
-}
+};
 
-function jump() {
+const jump = () => {
   if (dino.classList.contains("jump") || !isAlive) return;
 
   dino.classList.add("jump");
   setTimeout(() => dino.classList.remove("jump"), GAME_SETTINGS.jumpDuration);
-}
+};
 
-function checkCollision(el1, el2) {
+const checkCollision = (el1, el2) => {
   const r1 = el1.getBoundingClientRect();
   const r2 = el2.getBoundingClientRect();
 
@@ -81,26 +81,26 @@ function checkCollision(el1, el2) {
     r1.top < r2.bottom &&
     r1.bottom > r2.top
   );
-}
+};
 
-function gameOver() {
+const gameOver = () => {
   isAlive = false;
+
   modal.classList.add("active");
+
   clearInterval(timerId);
   cancelAnimationFrame(cactusAnimationId);
-}
+};
 
-function setupControls() {
+const setupControls = () => {
   document.addEventListener("keydown", (e) => {
-    if (e.code === "Space" || e.code === "ArrowUp") {
-      jump();
-    }
+    if (e.code === "Space" || e.code === "ArrowUp") { jump(); }
   });
 
   restartBtn.addEventListener("click", () => {
     modal.classList.remove("active");
     startGame();
   });
-}
+};
 
 startGame();
